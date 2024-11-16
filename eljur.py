@@ -6,7 +6,7 @@ from telebot import types
 import datetime
 import random
 import os
-from keep_alive import keep_aliv
+from make_alive import keep_aliv
 
 def convert(lst):
     res_dict = {}

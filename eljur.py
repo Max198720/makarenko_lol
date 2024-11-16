@@ -286,7 +286,7 @@ def choose_mark(message, user, session, weekdays, lesson, class_):
     for i in dates:
         if lesson["short"] in weekdays[i.weekday()]:
             con_date = i.strftime("%d %b %Y").replace("Jan", "Января").replace("Feb", "Февраля").replace("Mar", "Марта").replace("Apr", "Апреля").replace("May", "Мая").replace("Sep", "Сентября").replace("Oct", "Октября").replace("Nov", "Ноября").replace("Dec", "Декабря")
-            dates_.append({"con_date": f"{con_date}", "date": f"{i.strftime("%Y-%m-%d")}"})
+            dates_.append({"con_date": f"{con_date}", "date": f"{i.strftime('%Y-%m-%d')}"})
             con_dates.append(con_date)
     
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)

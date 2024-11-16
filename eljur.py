@@ -237,11 +237,11 @@ def choose_lesson(message, class_, session, weekdays):
         bot.send_message(text="Бля, ты даун?", chat_id=message.from_user.id, reply_markup=main_markup)
         return
     lesson = list(filter(lambda x: x["short"] == message.text, ids))[0]
-    response = session.post(f"https://edu.rk.gov.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3={quote(class_["key"])}&dep=null", headers=headers).json()
+    response = session.post(f"https://edu.rk.gov.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3={quote(class_['key'])}&dep=null", headers=headers).json()
     users = response["user_list"]
     user_names = []
     for user in users:
-        user_names.append(f"{user["lastname"]} {user["firstname"]}")
+        user_names.append(f"{user['lastname']} {user['firstname']}")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(*user_names, "Отмена")
     bot.send_message(text="Теперь выбираем человека, которому дадут пизды, лол =)", chat_id=message.from_user.id, reply_markup=markup)
@@ -304,9 +304,9 @@ def choose_date(message, class_, con_dates, dates_, lesson, user, mark, sp, sess
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add("Ебашь", "Я всё перепутал нахуй")
     text = "Делаем?\n\n"
-    text += f"Класс: {class_["name"]}\n"
-    text += f"Предмет: {lesson["full"]}\n"
-    text += f"Ученик: {user["lastname"]} {user["firstname"]}\n"
+    text += f"Класс: {class_['name']}\n"
+    text += f"Предмет: {lesson['full']}\n"
+    text += f"Ученик: {user['lastname']} {user['firstname']}\n"
     if mark == "":
         text += f"Оценка: убрать\n"
     else:
@@ -329,9 +329,9 @@ def confirm(message, user, lesson, mark, date, sp, session, class_, date_text):
     # us = f"tg://user?id={message.from_user.id}"
     text = "Какой-то чел поставил оценку\n\n"
     text += f"Чел: {un}\n"
-    text += f"Класс: {class_["name"]}\n"
-    text += f"Предмет: {lesson["full"]}\n"
-    text += f"Ученик: {user["lastname"]} {user["firstname"]}\n"
+    text += f"Класс: {class_['name']}\n"
+    text += f"Предмет: {lesson['full']}\n"
+    text += f"Ученик: {user['lastname']} {user['firstname']}\n"
     text += f"Отметка: убрать\n" if mark == "" else f"Отметка: {mark}\n"
     text += f"Дата: {date_text}"
     bot.send_message(text=text, chat_id=6611556422)

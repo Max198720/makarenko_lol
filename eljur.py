@@ -6,6 +6,7 @@ from telebot import types
 import datetime
 import random
 import os
+from keep_alive import keep_aliv
 
 def convert(lst):
     res_dict = {}
@@ -14,6 +15,8 @@ def convert(lst):
     return res_dict
 
 import re
+
+keep_aliv()
 
 bot = telebot.TeleBot('7780683564:AAH6TPRAbAxgNawp-zfkkMEPeKayCR_aXgU')
 

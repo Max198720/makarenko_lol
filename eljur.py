@@ -319,7 +319,7 @@ def confirm(message, user, lesson, mark, date, sp, session, class_, date_text):
     if message.text == "Я всё перепутал нахуй":
         bot.send_message(text="Ну и иди нахуй тогда", chat_id=message.from_user.id, reply_markup=main_markup)
         return
-    url = f"https://edu.rk.gov.ru/journal-index-rpc-teacher-action?method=teacher.set_mark&lesson_id={lesson["id"]}&student={user["id"]}&date={date}&num=&nm=0&mark={mark}&type=0&grp=0&sp={quote(sp)}&load_id=&miss_type=none&miss_minutes=0&need_update_avg_cw_year=0"
+    url = f"https://edu.rk.gov.ru/journal-index-rpc-teacher-action?method=teacher.set_mark&lesson_id={lesson['id']}&student={user['id']}&date={date}&num=&nm=0&mark={mark}&type=0&grp=0&sp={quote(sp)}&load_id=&miss_type=none&miss_minutes=0&need_update_avg_cw_year=0"
     data_= quote('comment=false&avg_info=[{"uid":' + user["id"] + ',"avg":,"na_miss":false,"na_mark":true,"last_two":false,"sum":,"max":0,"deuce_list":[]}]')
     set_mark = session.post(url, data_, headers=headers).json()
     if set_mark['result'] == True: bot.send_message(text="Готово, с тебя минет", chat_id=message.from_user.id, reply_markup=main_markup)

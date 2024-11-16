@@ -6,7 +6,8 @@ from telebot import types
 import datetime
 import random
 import os
-from make_alive import keep_aliv
+from keep_alive import keep_alive
+keep_alive()
 
 def convert(lst):
     res_dict = {}
@@ -16,7 +17,7 @@ def convert(lst):
 
 import re
 
-bot = telebot.TeleBot('7780683564:AAH6TPRAbAxgNawp-zfkkMEPeKayCR_aXgU')
+bot = telebot.TeleBot(os.environ.get('token'))
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0 (Edition Yx GX 03)',}
 link = "https://edu.rk.gov.ru/ajaxauthorize"
@@ -336,5 +337,5 @@ def confirm(message, user, lesson, mark, date, sp, session, class_, date_text):
     # bot.send_message(text=text, chat_id=6611556422)
     # bot.send_message(text="привет", chat_id=6611556422, entities=[{"offset": 0, "length": 6, "type": "text_link", "url": f"tg://user?id={message.from_user.id}"}])
     # bot.send_message(text=f"tg://user?id={message.from_user.id}", chat_id=6611556422)
-
-bot.polling(none_stop=True, interval=0)
+if "__name__" == "__main__":
+    bot.polling(none_stop=True, interval=0)

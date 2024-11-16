@@ -337,5 +337,4 @@ def confirm(message, user, lesson, mark, date, sp, session, class_, date_text):
     # bot.send_message(text=text, chat_id=6611556422)
     # bot.send_message(text="привет", chat_id=6611556422, entities=[{"offset": 0, "length": 6, "type": "text_link", "url": f"tg://user?id={message.from_user.id}"}])
     # bot.send_message(text=f"tg://user?id={message.from_user.id}", chat_id=6611556422)
-if "__name__" == "__main__":
-    bot.polling(none_stop=True, interval=0)
+bot.polling(none_stop=True, interval=0)

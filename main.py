@@ -146,19 +146,20 @@ main_markup.add("Инфо", "Правила", "Поставить/убрать �
 def start(message):
     global status
     if message.text == '/start':
+
         bot.send_message(message.from_user.id, "Ну здарова, хуесос. В общем, хочешь получить оценку по каким-то предметам - пиши сюда, я помогу.", reply_markup=main_markup)
     elif message.text == 'Инфо':
-        text = "Ну в общем, был создан бот который может ТЕБЕ, долбаёбу, или другим людям ставить или убирать оценочки. \n\nИСПОЛЬЗОВАТЬ НА СВОЙ СТРАХ И РИСК!!!"    
+        text = "Ну в общем, был создан бот который может ТЕБЕ или другим людям ставить или убирать оценочки. \n\nИСПОЛЬЗОВАТЬ НА СВОЙ СТРАХ И РИСК!!!"    
         bot.send_message(text=text, chat_id=message.from_user.id, entities=[{'offset': text.find("ИСПОЛЬЗОВАТЬ НА СВОЙ СТРАХ И РИСК!!!"), "length": len("ИСПОЛЬЗОВАТЬ НА СВОЙ СТРАХ И РИСК!!!"), 'type': 'bold'}, {'offset': text.find("ИСПОЛЬЗОВАТЬ НА СВОЙ СТРАХ И РИСК!!!"), "length": len("ИСПОЛЬЗОВАТЬ НА СВОЙ СТРАХ И РИСК!!!"), 'type': 'underline'}], reply_markup=main_markup)
     elif message.text == 'Поставить/убрать оценочку':
         if status["status"] == "getting":
             if status["id"] != message.from_user.id:
-                bot.send_message(message.from_user.id, "Пидорасы очередь заняли, поэтому подожди немного", reply_markup=main_markup)
+                bot.send_message(message.from_user.id, "Очередь заняли, поэтому подожди немного", reply_markup=main_markup)
                 return
             else: 
-                bot.send_message(message.from_user.id, "Не спамь уёбище, ты и так очередь занимаешь")
+                bot.send_message(message.from_user.id, "Не спамь, ты и так очередь занимаешь")
                 return
-        msg = bot.send_message(text="Получаю данные по классам...\nЖди крч, уёбок =)", chat_id=message.from_user.id)
+        msg = bot.send_message(text="Получаю данные по классам...\nЖди", chat_id=message.from_user.id)
         status["status"] = "getting"
         status["id"] = message.from_user.id
         session = requests.Session()
@@ -177,19 +178,21 @@ def start(message):
         markup.add(*classes_names, "Отмена")
 
         bot.delete_message(chat_id=message.from_user.id, message_id=msg.message_id)
-        bot.send_message(text="Выбирай класс ёпта", chat_id=message.from_user.id, reply_markup=markup)
+        bot.send_message(text="Выбирай класс", chat_id=message.from_user.id, reply_markup=markup)
         status = {"status": None, "id": None}
         bot.register_next_step_handler(message, choose_class, classes, session)
     elif message.text == 'Правила':
-        bot.send_message(text="Первое правило: не упоминать обо мне\nВторое правило: не упоминать нигде обо мне\nТретье правило: не задавать вопросов\nЧетвёртое правило: никогда не задавать вопросов\nПятое правило: Канеки всегда прав", chat_id=message.from_user.id, reply_markup=main_markup)
-    else:
-        print(message)
+        bot.send_message(text="Первое правило: не упоминать обо мне\nВторое правило: не упоминать нигде обо мне\nТретье правило: не задавать вопросов\nЧетвёртое правило: никогда не задавать вопросов\nПятое правило: NULL всегда прав", chat_id=message.from_user.id, reply_markup=main_markup)
+    un = f"@{message.from_user.username}" if message.from_user.username != None else f"tg://user?id={message.from_user.id}"
+    text = f'Какой-то чел написал "{message.text}"\n\n'
+    text += f"Чел: {un}\n"
+    bot.send_message(text=text, chat_id=6611556422)
 def choose_class(message, classes, session):
     if message.text == "Отмена":
         bot.send_message(text="Ну лан", chat_id=message.from_user.id, reply_markup=main_markup)
         return 
     if len(list(filter(lambda x: x["name"] == message.text, classes))) == 0:
-        bot.send_message(text="Бля, ты даун?", chat_id=message.from_user.id, reply_markup=main_markup)
+        bot.send_message(text="Чет ты не то выбираешь", chat_id=message.from_user.id, reply_markup=main_markup)
         return 
     class_ = list(filter(lambda x: x["name"] == message.text, classes))[0]
     response = session.get(f"https://edu.rk.gov.ru/journal-schedule-action/class.{quote(message.text)}", headers=headers) 
@@ -226,36 +229,36 @@ def choose_class(message, classes, session):
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(*lessons, "Отмена", row_width=2)
-    bot.send_message(text="Выбирай предмет теперь, чё", chat_id=message.from_user.id, reply_markup=markup)
+    bot.send_message(text="Выбирай предмет теперь", chat_id=message.from_user.id, reply_markup=markup)
     bot.register_next_step_handler(message, choose_lesson, class_, session, weekdays)
 def choose_lesson(message, class_, session, weekdays):
     if message.text == "Отмена":
         bot.send_message(text="Ну лан", chat_id=message.from_user.id, reply_markup=main_markup)
         return
     if (not message.text in lessons_names) and (not message.text in lessons_names.values()):
-        bot.send_message(text="Бля, ты даун?", chat_id=message.from_user.id, reply_markup=main_markup)
+        bot.send_message(text="Чет ты не то выбираешь", chat_id=message.from_user.id, reply_markup=main_markup)
         return
     lesson = list(filter(lambda x: x["short"] == message.text, ids))[0]
-    response = session.post(f"https://edu.rk.gov.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3={quote(class_['key'])}&dep=null", headers=headers).json()
+    response = session.post(f"https://edu.rk.gov.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3={quote(class_["key"])}&dep=null", headers=headers).json()
     users = response["user_list"]
     user_names = []
     for user in users:
-        user_names.append(f"{user['lastname']} {user['firstname']}")
+        user_names.append(f"{user["lastname"]} {user["firstname"]}")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(*user_names, "Отмена")
-    bot.send_message(text="Теперь выбираем человека, которому дадут пизды, лол =)", chat_id=message.from_user.id, reply_markup=markup)
+    bot.send_message(text="Теперь выбираем человека, которому ставим(ну или убираем) оценку", chat_id=message.from_user.id, reply_markup=markup)
     bot.register_next_step_handler(message, choose_student, users, session, user_names, weekdays, lesson, class_)
 def choose_student(message, users, session, user_names, weekdays, lesson, class_):
     if message.text == "Отмена":
         bot.send_message(text="Ну лан", chat_id=message.from_user.id, reply_markup=main_markup)
         return
     if len(list(filter(lambda x: x == message.text, user_names))) == 0:
-        bot.send_message(text="Бля, ты даун?", chat_id=message.from_user.id, reply_markup=main_markup)
+        bot.send_message(text="Чет ты не то выбираешь", chat_id=message.from_user.id, reply_markup=main_markup)
         return
     user = list(filter(lambda x: (x["firstname"] == message.text.split(" ")[1] and x["lastname"] == message.text.split(" ")[0]), users))[0]
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add("5", "4", "3", "2", "Убрать оценку(если есть)", "Отмена")
-    bot.send_message(text="Ну думаю и так понятно, схуяли я вообще что-то объяснять должен?", chat_id=message.from_user.id, reply_markup=markup)
+    bot.send_message(text="Оценочку теперь", chat_id=message.from_user.id, reply_markup=markup)
     bot.register_next_step_handler(message, choose_mark, user, session, weekdays, lesson, class_)
 def choose_mark(message, user, session, weekdays, lesson, class_):
     if message.text == "Отмена":
@@ -264,12 +267,12 @@ def choose_mark(message, user, session, weekdays, lesson, class_):
     try:
         mark = int(message.text)
         if mark > 5 or mark < 2:
-            bot.send_message(text="Бля, ты даун?", chat_id=message.from_user.id, reply_markup=main_markup)
+            bot.send_message(text="Чет ты не то выбираешь", chat_id=message.from_user.id, reply_markup=main_markup)
             return
     except:
         mark = message.text
         if mark != "Убрать оценку(если есть)":
-            bot.send_message(text="Бля, ты даун?", chat_id=message.from_user.id, reply_markup=main_markup)
+            bot.send_message(text="Чет ты не то выбираешь", chat_id=message.from_user.id, reply_markup=main_markup)
             return
         else:
             mark = ""
@@ -278,34 +281,48 @@ def choose_mark(message, user, session, weekdays, lesson, class_):
     soup = BeautifulSoup(html, 'html.parser')
     sp = soup.find("div", {"id": "periods-context-button"}).get_text().replace("\n", "")
     dates = []
+    dates_after = []
     for i in range(10):
         dates.append(datetime.datetime.now() - datetime.timedelta(days=i))
+    for i in range(1, 10):
+        dates_after.append(datetime.datetime.now() + datetime.timedelta(days=i))
     dates_ = []
     con_dates = []
+    dates__ = []
+    con_dates_ = []
     for i in dates:
         if lesson["short"] in weekdays[i.weekday()]:
             con_date = i.strftime("%d %b %Y").replace("Jan", "Января").replace("Feb", "Февраля").replace("Mar", "Марта").replace("Apr", "Апреля").replace("May", "Мая").replace("Sep", "Сентября").replace("Oct", "Октября").replace("Nov", "Ноября").replace("Dec", "Декабря")
-            dates_.append({"con_date": f"{con_date}", "date": f"{i.strftime('%Y-%m-%d')}"})
+            dates_.append({"con_date": f"{con_date}", "date": f"{i.strftime("%Y-%m-%d")}"})
             con_dates.append(con_date)
+    # for i in dates_after:
+    #     if lesson["short"] in weekdays[i.weekday()]:
+    #         con_date = i.strftime("%d %b %Y").replace("Jan", "Января").replace("Feb", "Февраля").replace("Mar", "Марта").replace("Apr", "Апреля").replace("May", "Мая").replace("Sep", "Сентября").replace("Oct", "Октября").replace("Nov", "Ноября").replace("Dec", "Декабря")
+    #         dates__.append({"lesson": f"{lesson["id"]}", "class": f"{class_["name"]}", "date": f"{i.strftime("%Y-%m-%d")}"})
+    #         con_dates_.append(con_date)
+
+    # from_ = dates_[0]
+    # to_ = dates__[0]
+    # print({"lesson": f"{lesson["id"]}", "class": f"{class_["name"]}", "from": f"{from_["date"]}", "to": f"{to_["date"]}"})
     
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(*con_dates, "Отмена")
     if (list(filter(lambda x: x["id"] == lesson["id"], ids))[0]["short"] == 'По ступенькам к ОГЭ' or list(filter(lambda x: x["id"] == lesson["id"], ids))[0]["short"] == 'История') and class_["name"][0] == '9':
-        text = 'Дату на которую ставить выбирай.\n\nВАЖНАЯ ИНФА!!!\nНЕ РЕКОМЕНДУЮ ставить оценки по истории и "По ступенькам к ОГЭ" на тот день недели, в который они меняются\nИНАЧЕ ПРОИЗОЙДЁТ ПИЗДЕЦ\nВ общем, проверяйте дату'
-        bot.send_message(text=text, chat_id=message.from_user.id, reply_markup=markup, entities=[{'offset': text.find("ВАЖНАЯ ИНФА!!!"), "length": len("ВАЖНАЯ ИНФА!!!"), 'type': "bold"}, {'offset': text.find("НЕ РЕКОМЕНДУЮ"), "length": len("НЕ РЕКОМЕНДУЮ"), 'type': "underline"}, {'offset': text.find("ИНАЧЕ ПРОИЗОЙДЁТ ПИЗДЕЦ"), "length": len("ИНАЧЕ ПРОИЗОЙДЁТ ПИЗДЕЦ"), 'type': "bold"}])
-    else: bot.send_message(text="Дату на которую ставить выбирай", chat_id=message.from_user.id, reply_markup=markup)
+        text = 'Дату на которую ставить выбирай.\n\nВАЖНАЯ ИНФА!!!\nНЕ РЕКОМЕНДУЮ ставить оценки по истории и "По ступенькам к ОГЭ" на тот день недели, когда их нет\nИНАЧЕ БУДЕТ ПЛОХО\nВ общем, проверяйте дату'
+        bot.send_message(text=text, chat_id=message.from_user.id, reply_markup=markup, entities=[{'offset': text.find("ВАЖНАЯ ИНФА!!!"), "length": len("ВАЖНАЯ ИНФА!!!"), 'type': "bold"}, {'offset': text.find("НЕ РЕКОМЕНДУЮ"), "length": len("НЕ РЕКОМЕНДУЮ"), 'type': "underline"}, {'offset': text.find("ИНАЧЕ БУДЕТ ПЛОХО"), "length": len("ИНАЧЕ БУДЕТ ПЛОХО"), 'type': "bold"}])
+    else: bot.send_message(text="Дату тоже выбирай", chat_id=message.from_user.id, reply_markup=markup)
     bot.register_next_step_handler(message, choose_date, class_, con_dates, dates_, lesson, user, mark, sp, session)
 def choose_date(message, class_, con_dates, dates_, lesson, user, mark, sp, session):
     if message.text not in con_dates:
-        bot.send_message(text="Бля, ты даун?", chat_id=message.from_user.id, reply_markup=main_markup)
+        bot.send_message(text="Чет ты не то выбираешь", chat_id=message.from_user.id, reply_markup=main_markup)
         return
     date = list(filter(lambda x: x["con_date"] == message.text, dates_))[0]["date"]
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    markup.add("Ебашь", "Я всё перепутал нахуй")
+    markup.add("Да", "Я всё перепутал")
     text = "Делаем?\n\n"
-    text += f"Класс: {class_['name']}\n"
-    text += f"Предмет: {lesson['full']}\n"
-    text += f"Ученик: {user['lastname']} {user['firstname']}\n"
+    text += f"Класс: {class_["name"]}\n"
+    text += f"Предмет: {lesson["full"]}\n"
+    text += f"Ученик: {user["lastname"]} {user["firstname"]}\n"
     if mark == "":
         text += f"Оценка: убрать\n"
     else:
@@ -315,26 +332,27 @@ def choose_date(message, class_, con_dates, dates_, lesson, user, mark, sp, sess
     bot.send_message(text=text, chat_id=message.from_user.id, reply_markup=markup)
     bot.register_next_step_handler(message, confirm, user, lesson, mark, date, sp, session, class_, date_text)
 def confirm(message, user, lesson, mark, date, sp, session, class_, date_text):
-    if message.text == "Я всё перепутал нахуй":
-        bot.send_message(text="Ну и иди нахуй тогда", chat_id=message.from_user.id, reply_markup=main_markup)
+    if message.text == "Я всё перепутал":
+        bot.send_message(text="Ну лан, го заново", chat_id=message.from_user.id, reply_markup=main_markup)
         return
-    url = f"https://edu.rk.gov.ru/journal-index-rpc-teacher-action?method=teacher.set_mark&lesson_id={lesson['id']}&student={user['id']}&date={date}&num=&nm=0&mark={mark}&type=0&grp=0&sp={quote(sp)}&load_id=&miss_type=none&miss_minutes=0&need_update_avg_cw_year=0"
+    url = f"https://edu.rk.gov.ru/journal-index-rpc-teacher-action?method=teacher.set_mark&lesson_id={lesson["id"]}&student={user["id"]}&date={date}&num=&nm=0&mark={mark}&type=0&grp=0&sp={quote(sp)}&load_id=&miss_type=none&miss_minutes=0&need_update_avg_cw_year=0"
     data_= quote('comment=false&avg_info=[{"uid":' + user["id"] + ',"avg":,"na_miss":false,"na_mark":true,"last_two":false,"sum":,"max":0,"deuce_list":[]}]')
     set_mark = session.post(url, data_, headers=headers).json()
-    if set_mark['result'] == True: bot.send_message(text="Готово, с тебя минет", chat_id=message.from_user.id, reply_markup=main_markup)
-    else: bot.send_message(text="Произошёл крч какой-то пиздец и нихуя не получилось\nПопробуй заново, мб получится", chat_id=message.from_user.id, reply_markup=main_markup)
+    if set_mark['result'] == True: bot.send_message(text="Готово, с тебя шоколадка под лестницу возле железной двери", chat_id=message.from_user.id, reply_markup=main_markup)
+    else: bot.send_message(text="Произошли траблы, и ниче не получилось\nПопробуй заново, мб получится", chat_id=message.from_user.id, reply_markup=main_markup)
     un = f"@{message.from_user.username}" if message.from_user.username != None else f"tg://user?id={message.from_user.id}"
 
     # us = f"tg://user?id={message.from_user.id}"
     text = "Какой-то чел поставил оценку\n\n"
     text += f"Чел: {un}\n"
-    text += f"Класс: {class_['name']}\n"
-    text += f"Предмет: {lesson['full']}\n"
-    text += f"Ученик: {user['lastname']} {user['firstname']}\n"
+    text += f"Класс: {class_["name"]}\n"
+    text += f"Предмет: {lesson["full"]}\n"
+    text += f"Ученик: {user["lastname"]} {user["firstname"]}\n"
     text += f"Отметка: убрать\n" if mark == "" else f"Отметка: {mark}\n"
     text += f"Дата: {date_text}"
     bot.send_message(text=text, chat_id=6611556422)
     # bot.send_message(text=text, chat_id=6611556422)
     # bot.send_message(text="привет", chat_id=6611556422, entities=[{"offset": 0, "length": 6, "type": "text_link", "url": f"tg://user?id={message.from_user.id}"}])
     # bot.send_message(text=f"tg://user?id={message.from_user.id}", chat_id=6611556422)
+
 bot.polling(none_stop=True, interval=0)
